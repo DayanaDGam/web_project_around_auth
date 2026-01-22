@@ -16,11 +16,13 @@ export const authorize = (email, password) =>
     body: JSON.stringify({ email, password }),
   }).then(checkResponse);
 
+// ✅ ESTO TE FALTA para validar token y sacar el email
 export const getUserData = (token) =>
   fetch(`${BASE_URL}/users/me`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${token}`, // ✅ OJO: con Bearer
     },
   }).then(checkResponse);
+

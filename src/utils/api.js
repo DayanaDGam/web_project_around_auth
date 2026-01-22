@@ -1,84 +1,49 @@
-class Api {
-  constructor({ baseUrl }) {
-    this._baseUrl = baseUrl;
-    this._token = null;
-  }
+const BASE_URL = "https://around-api.en.tripleten-services.com/v1";
 
-  setToken(token) {
-    this._token = token;
-  }
+const checkResponse = (res) => (res.ok ? res.json() : Promise.reject(res.status));
 
-  _getHeaders() {
-    const headers = {
+export const getUserInfo = (token) =>
+  fetch(`${BASE_URL}/users/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
-    };
+    },
+  }).then(checkResponse);
 
-    if (this._token) {
-      headers.Authorization = `Bearer ${this._token}`;
-    }
+export const getInitialCards = (token) =>
+  fetch(`${BASE_URL}/cards`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  }).then(checkResponse);
 
-    return headers;
-  }
+export const setUserInfo = ({ name, about }, token) =>
+  fetch(`${BASE_URL}/users/me`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ name, about }),
+  }).then(checkResponse);
 
-  _checkResponse(res) {
-    if (res.ok) return res.json();
-    return res.json().catch(() => null).then((data) => {
-      const msg = data?.message || data?.error || `Error: ${res.status}`;
-      return Promise.reject(msg);
-    });
-  }
+export const setUserAvatar = ({ avatar }, token) =>
+  fetch(`${BASE_URL}/users/me/avatar`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ avatar }),
+  }).then(checkResponse);
 
-  getUserInfo() {
-    return fetch(`${this._baseUrl}/users/me`, {
-      headers: this._getHeaders(),
-    }).then(this._checkResponse);
-  }
-
-  getInitialCards() {
-    return fetch(`${this._baseUrl}/cards`, {
-      headers: this._getHeaders(),
-    }).then(this._checkResponse);
-  }
-
-  addNewCard({ name, link }) {
-    return fetch(`${this._baseUrl}/cards`, {
-      method: "POST",
-      headers: this._getHeaders(),
-      body: JSON.stringify({ name, link }),
-    }).then(this._checkResponse);
-  }
-
-  deleteCard(cardId) {
-    return fetch(`${this._baseUrl}/cards/${cardId}`, {
-      method: "DELETE",
-      headers: this._getHeaders(),
-    }).then(this._checkResponse);
-  }
-
-  changeLikeCardStatus(cardId, isLiked) {
-    return fetch(`${this._baseUrl}/cards/${cardId}/likes`, {
-      method: isLiked ? "PUT" : "DELETE",
-      headers: this._getHeaders(),
-    }).then(this._checkResponse);
-  }
-
-  updateUserInfo({ name, about }) {
-    return fetch(`${this._baseUrl}/users/me`, {
-      method: "PATCH",
-      headers: this._getHeaders(),
-      body: JSON.stringify({ name, about }),
-    }).then(this._checkResponse);
-  }
-
-  updateAvatar(avatarUrl) {
-    return fetch(`${this._baseUrl}/users/me/avatar`, {
-      method: "PATCH",
-      headers: this._getHeaders(),
-      body: JSON.stringify({ avatar: avatarUrl }),
-    }).then(this._checkResponse);
-  }
-}
-
-export const api = new Api({
-  baseUrl: "https://around-api.en.tripleten-services.com/v1",
-});
+export const addCard = ({ name, link }, token) =>
+  fetch(`${BASE_URL}/cards`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ name, link }),
+  }).then(checkResponse);
